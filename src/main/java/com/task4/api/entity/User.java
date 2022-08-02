@@ -1,8 +1,11 @@
 package com.task4.api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -41,6 +44,7 @@ public class User {
 
     @NotNull
     @NotEmpty
+    @JsonIgnore
     @Column(name = "password", nullable = false)
     private String password;
 
@@ -50,11 +54,11 @@ public class User {
     @Column(name = "logged_in_at")
     private Date loggedInAt;
 
-    @CreatedDate
+    @CreationTimestamp
     @Column(name = "created_at")
-    private Date createAt;
+    private Date createdAt;
 
-    @LastModifiedDate
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private Date updatedAt;
 

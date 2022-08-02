@@ -4,15 +4,22 @@ import com.task4.api.entity.User;
 import com.task4.api.exception.UserAlreadyExistException;
 import com.task4.api.repository.UserRepository;
 import com.task4.api.request.ListIDRequest;
+import com.task4.api.request.LoginRequest;
+import com.task4.api.security.jwt.JwtTokenProvider;
 import com.task4.api.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -23,10 +30,16 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final AuthenticationManager authenticationManager;
+
+    private final JwtTokenProvider jwtTokenProvider;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -45,7 +58,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User store(User user) {
+    public Map<Object, Object> login(LoginRequest request) {
+        Map<Object, Object> res = new HashMap<>();
+        String email = request.getEmail();
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, request.getPassword()));
+        User user = findByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException("User with email: " + email + " not found");
+        }
+        String token = jwtTokenProvider.createToken(email);
+        user.setLoggedInAt(new Date());
+        userRepository.save(user);
+        res.put("email", email);
+        res.put("token", token);
+        return res;
+    }
+
+    @Override
+    public void store(User user) {
         String email = user.getEmail();
         if (userRepository.findByEmail(email) != null) {
             throw new UserAlreadyExistException("The email " + email + " has already been taken.");
@@ -55,7 +85,7 @@ public class UserServiceImpl implements UserService {
         newUser.setLastName(user.getLastName());
         newUser.setEmail(user.getEmail());
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
     }
 
     @Override
