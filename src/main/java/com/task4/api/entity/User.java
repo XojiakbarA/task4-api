@@ -26,24 +26,15 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @NotEmpty
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @NotNull
-    @NotEmpty
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @NotNull
-    @NotEmpty
-    @Email
     @Column(name = "email", nullable = false)
     private String email;
 
-    @NotNull
-    @NotEmpty
     @JsonIgnore
     @Column(name = "password", nullable = false)
     private String password;

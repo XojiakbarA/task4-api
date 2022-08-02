@@ -3,6 +3,7 @@ package com.task4.api.service;
 import com.task4.api.entity.User;
 import com.task4.api.request.ListIDRequest;
 import com.task4.api.request.LoginRequest;
+import com.task4.api.request.RegisterRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
@@ -17,7 +18,7 @@ public interface UserService {
 
     Optional<User> findById(Long id);
 
-    void store(User user);
+    void store(RegisterRequest request);
 
     Map<Object, Object> login(LoginRequest request);
     void lock(ListIDRequest request);

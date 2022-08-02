@@ -3,6 +3,7 @@ package com.task4.api.controller;
 import com.task4.api.entity.User;
 import com.task4.api.exception.UserAlreadyExistException;
 import com.task4.api.request.LoginRequest;
+import com.task4.api.request.RegisterRequest;
 import com.task4.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -49,10 +50,10 @@ public class AuthController {
     }
 
     @PostMapping("register")
-    public ResponseEntity<Map<Object, Object>> register(@RequestBody @Valid User user) {
+    public ResponseEntity<Map<Object, Object>> register(@RequestBody @Valid RegisterRequest request) {
         Map<Object, Object> response = new HashMap<>();
         try {
-            userService.store(user);
+            userService.store(request);
             response.put("message", "Registration completed successfully. Please, login.");
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (UserAlreadyExistException e) {

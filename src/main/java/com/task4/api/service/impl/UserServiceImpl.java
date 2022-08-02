@@ -5,6 +5,7 @@ import com.task4.api.exception.UserAlreadyExistException;
 import com.task4.api.repository.UserRepository;
 import com.task4.api.request.ListIDRequest;
 import com.task4.api.request.LoginRequest;
+import com.task4.api.request.RegisterRequest;
 import com.task4.api.security.jwt.JwtTokenProvider;
 import com.task4.api.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -75,17 +76,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void store(User user) {
-        String email = user.getEmail();
+    public void store(RegisterRequest request) {
+        String email = request.getEmail();
         if (userRepository.findByEmail(email) != null) {
             throw new UserAlreadyExistException("The email " + email + " has already been taken.");
         }
-        User newUser = new User();
-        newUser.setFirstName(user.getFirstName());
-        newUser.setLastName(user.getLastName());
-        newUser.setEmail(user.getEmail());
-        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.save(newUser);
+        User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
     }
 
     @Override
